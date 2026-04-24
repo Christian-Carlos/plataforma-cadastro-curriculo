@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>ARGOS - Cadastro Profissional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg1: #0f5bd8; --bg2: #24b7ff; --card: #ffffff;
+      --text: #111827; --muted: #667085; --line: #d8e3f0;
+      --primary: #1668e8; --primary-hover: #0d5bd7; --error: #dc3545;
+      --radius-lg: 18px; --radius-md: 12px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+
+    body {
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      display: flex; justify-content: center; align-items: flex-start;
+      min-height: 100vh; padding: 20px;
+    }
+
+    .container { width: 100%; max-width: 850px; margin-top: 20px; }
+
+    .card { background: var(--card); border-radius: var(--radius-lg); padding: 35px; box-shadow: var(--shadow); }
+
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h1 { font-size: 26px; color: var(--primary); margin-bottom: 8px; }
+    .header p { color: var(--muted); font-size: 15px; }
+
+    .busca-container { display: flex; flex-direction: column; gap: 20px; }
+    .busca-container input { width: 100%; padding: 18px; font-size: 18px; text-align: center; border: 2px solid var(--line); border-radius: var(--radius-md); transition: 0.2s; }
+    .busca-container input:focus { border-color: var(--primary); outline: none; }
+    .input-error { border-color: var(--error) !important; background-color: #fff5f5; }
+
+    .required-label::after {
+      content: " *";
+      color: #dc3545;
+      font-weight: 700;
+    }
+    .required-error {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 3px rgba(220,53,69,0.08);
+      background: #fff8f8;
+    }
+    .cursos-dropdown.required-error,
+    .upload-card.required-error {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 3px rgba(220,53,69,0.08);
+      background: #fff8f8;
+    }
+
+    .btn-group-vertical { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .full-width { grid-column: span 2; }
+
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    label { font-weight: 600; font-size: 14px; color: var(--text); }
+    input, select, textarea { padding: 14px; border: 1px solid var(--line); border-radius: var(--radius-md); font-size: 15px; width: 100%; transition: 0.2s; }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); outline: none; }
+
+    .file-input { padding: 10px; font-size: 13px; background: #f8fafc; }
+    .select-multi { min-height: 140px; background: #fff; }
+    .field-tip { color: var(--muted); font-size: 12px; line-height: 1.4; }
+
+    .cursos-dropdown {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #fff;
+      overflow: hidden;
+    }
+    .cursos-dropdown summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px;
+      font-size: 15px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      user-select: none;
+    }
+    .cursos-dropdown summary::-webkit-details-marker { display: none; }
+    .cursos-dropdown summary::after {
+      content: "▼";
+      font-size: 12px;
+      color: var(--muted);
+      transition: transform 0.2s ease;
+    }
+    .cursos-dropdown[open] summary::after {
+      transform: rotate(180deg);
+    }
+    .cursos-dropdown-panel {
+      border-top: 1px solid var(--line);
+      padding: 12px;
+      background: #f8fafc;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .cursos-checkbox-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 14px;
+      margin-top: 4px;
+    }
+    .curso-check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #f8fafc;
+    }
+    .curso-check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--primary);
+      flex: 0 0 auto;
+    }
+    .curso-check-item label {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      line-height: 1.3;
+    }
+    @media (max-width: 768px) {
+      .cursos-checkbox-box {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn { width: 100%; padding: 16px; border-radius: var(--radius-md); border: none; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border: 2px solid var(--line); color: var(--muted); }
+
+    .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 768px) {
+      .card { padding: 25px 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .full-width { grid-column: span 1; }
+      .actions-grid { grid-template-columns: 1fr; }
+      .senha-box { flex-direction: column; }
+      .senha-toggle { width: 100%; min-width: 0; min-height: 44px; }
+    }
+
+
+    .upload-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .upload-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .upload-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .upload-mini-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+    }
+    .upload-mini-btn.secondary {
+      background: #eef2ff;
+      color: var(--primary);
+      border: 1px solid var(--line);
+    }
+    .upload-status {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    .upload-hidden-input { display: none; }
+
+.banner-topo {
+  width: 100%;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+.banner-topo img {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+  display: block;
+}
+
+    .foto-thumb-wrap {
+      width: 72px;
+      height: 72px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .foto-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .foto-3x4-wrap {
+      width: 150px;
+      height: 200px;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .foto-3x4-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .foto-placeholder {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      padding: 10px;
+      line-height: 1.4;
+    }
+
+
+    .senha-box {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+      width: 100%;
+    }
+    .senha-box input {
+      flex: 1;
+    }
+    .senha-toggle {
+      width: auto;
+      min-width: 92px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #f8fafc;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: none;
+    }
+    
+.modal-overlay {
+  position: fixed;
+  top:0;left:0;width:100%;height:100%;
+  background: rgba(0,0,0,0.5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+.modal-box {
+  background:#fff;
+  padding:25px;
+  border-radius:12px;
+  width:90%;
+  max-width:350px;
+  text-align:center;
+}
+.modal-box input {
+  width:100%;
+  margin-top:10px;
+  margin-bottom:15px;
+}
+.modal-actions {
+  display:flex;
+  gap:10px;
+}
+.modal-actions button {
+  flex:1;
+}
+
+.senha-toggle:hover {
+      background: #eef2ff;
+    }
+
+    .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 999; padding: 20px; }
+    .modal { background: white; padding: 30px; border-radius: var(--radius-lg); width: 100%; max-width: 400px; text-align: center; }
+
+    .card {
+      animation: fadeUp 0.28s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .btn {
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(22,104,232,0.16);
+    }
+    .btn:active {
+      transform: translateY(0);
+    }
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.28);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      padding: 20px;
+    }
+    .loading-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px 20px;
+      min-width: 260px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .loading-spinner {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 4px solid #dbe7f5;
+      border-top-color: var(--primary);
+      margin: 0 auto 12px;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .field-ok {
+      border-color: #198754 !important;
+      box-shadow: 0 0 0 3px rgba(25,135,84,0.08);
+      background: #f7fffa;
+    }
+
+
+    .erro-senha-modal {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #fff5f5;
+      border: 1px solid #f1b0b7;
+      color: #a61b29;
+      font-size: 13px;
+      line-height: 1.4;
+      text-align: left;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div id="telaBusca" class="card">
+  <div class="banner-topo">
+    <img
+      src="https://drive.google.com/uc?export=view&id=1sheO-efBjMix6Jw5O7w9y3D3r6zKnDKs"
+      alt="Banner"
+      referrerpolicy="no-referrer"
+      onerror="this.onerror=null;this.src='https://drive.google.com/thumbnail?id=1sheO-efBjMix6Jw5O7w9y3D3r6zKnDKs&sz=w1600';"
+    >
+  </div>
+    <div class="header">
+      <h1>Cadastrar Currículo</h1>
+      <p>Informe o CPF para localizar ou cadastrar novo Currículo</p>
+    </div>
+
+    <div class="busca-container">
+      <input type="tel" id="cpfBusca" placeholder="000.000.000-00" oninput="mascaraCPF(this)" onblur="validarCampoCPF(this)" onkeypress="if(event.key === 'Enter'){ buscarCpf(); }">
+      <div class="btn-group-vertical">
+        <button onclick="buscarCpf()" id="btnBusca" class="btn btn-primary">Pesquisar CPF</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="telaCadastro" class="card hidden" style="display:none;">
+    <div class="header">
+      <h1 id="tituloForm">Ficha do Candidato</h1>
+      <p>Preencha os dados abaixo com atenção</p>
+    </div>
+
+    <form id="formDados">
+      <div class="form-grid">
+        <div class="input-group full-width"><label class="required-label">Nome Completo</label><input type="text" id="nome"></div>
+        <div class="input-group"><label class="required-label">CPF</label><input type="text" id="cpf" oninput="mascaraCPF(this)" onblur="validarCampoCPF(this)"></div>
+        <div class="input-group"><label>RG</label><input type="text" id="rg" oninput="mascaraRG(this)" placeholder="Opcional - Ex: 09.987.654-32"></div>
+        <div class="input-group"><label class="required-label">Data de Nascimento</label><input type="date" id="dataNasc" onchange="atualizarInfoIdade()" oninput="atualizarInfoIdade()"></div>
+        <div class="input-group"><label class="required-label">Telefone / WhatsApp</label><input type="tel" id="telefone" placeholder="Ex: 71996856609 (tudo junto, sem pontos ou traços)"></div>
+        <div class="input-group"><label class="required-label">E-mail</label><input type="email" id="email"></div>
+        <div class="input-group"><label class="required-label">CEP</label><input type="text" id="cep" oninput="mascaraCEP(this)" onblur="buscarCepAutomatico()"></div>
+        <div class="input-group"><label class="required-label">Endereço Completo</label><input type="text" id="endereco"></div>
+        <div class="input-group">
+          <label class="required-label">Gênero</label>
+          <select id="genero">
+            <option value="">Selecione</option>
+            <option value="Feminino">Feminino</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Não binário">Não binário</option>
+            <option value="Prefiro não informar">Prefiro não informar</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Idade</label>
+          <input type="text" id="idade" readonly placeholder="Calculada automaticamente">
+          <small class="field-tip" id="idadeInfo">A idade será calculada automaticamente pela data de nascimento.</small>
+        </div>
+        <div class="input-group">
+          <label class="required-label">Estado Civil</label>
+          <select id="estadoCivil">
+            <option value="">Selecione</option>
+            <option value="Solteiro(a)">Solteiro(a)</option>
+            <option value="Casado(a)">Casado(a)</option>
+            <option value="União estável">União estável</option>
+            <option value="Divorciado(a)">Divorciado(a)</option>
+            <option value="Viúvo(a)">Viúvo(a)</option>
+            <option value="Prefiro não informar">Prefiro não informar</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="required-label">Possui Filhos</label>
+          <select id="possuiFilhos">
+            <option value="">Selecione</option>
+            <option value="Não">Não</option>
+            <option value="Sim">Sim</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="required-label">É PCD?</label>
+          <select id="pcd">
+            <option value="">Selecione</option>
+            <option value="Não">Não</option>
+            <option value="Sim">Sim</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="required-label">Possui CNH</label>
+          <select id="possuiCnh" onchange="controlarCampoCNH()">
+            <option value="">Selecione</option>
+            <option value="Não">Não</option>
+            <option value="Sim">Sim</option>
+          </select>
+          <small class="field-tip">Ao selecionar "Sim", a categoria da CNH será liberada.</small>
+        </div>
+        <div class="input-group">
+          <label>Categoria da CNH</label>
+          <select id="categoriaCnh" disabled>
+            <option value="">Selecione</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="AB">AB</option>
+            <option value="AC">AC</option>
+            <option value="AD">AD</option>
+            <option value="AE">AE</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Fala algum idioma</label>
+          <input type="text" id="idioma" list="listaIdiomas" placeholder="Ex: Inglês, Espanhol">
+          <datalist id="listaIdiomas">
+            <option value="Inglês">
+            <option value="Espanhol">
+            <option value="Francês">
+            <option value="Italiano">
+            <option value="Alemão">
+            <option value="Libras">
+            <option value="Outro">
+          </datalist>
+        </div>
+        <div class="input-group">
+          <label class="required-label">Disponibilidade de horário</label>
+          <input type="hidden" id="disponibilidadeHorario">
+          <details class="cursos-dropdown" id="dropdownDisponibilidade">
+            <summary id="disponibilidadeResumo">Selecione os horários disponíveis</summary>
+            <div class="cursos-dropdown-panel">
+              <div id="disponibilidadeCheckboxes" class="cursos-checkbox-box">
+                <div class="curso-check-item"><input type="checkbox" id="disp_1" value="Manhã"><label for="disp_1">Manhã</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="disp_2" value="Tarde"><label for="disp_2">Tarde</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="disp_3" value="Noite"><label for="disp_3">Noite</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="disp_4" value="Integral"><label for="disp_4">Integral</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="disp_5" value="Final de semana"><label for="disp_5">Final de semana</label></div>
+              </div>
+            </div>
+          </details>
+          <small class="field-tip">Marque um ou mais horários em que você pode trabalhar.</small>
+        </div>
+        <div class="input-group">
+          <label class="required-label">Escolaridade</label>
+          <input type="text" id="escolaridade" list="listaEscolaridade" placeholder="Ex: Ensino médio completo">
+          <datalist id="listaEscolaridade">
+            <option value="Ensino fundamental incompleto">
+            <option value="Ensino fundamental completo">
+            <option value="Ensino médio incompleto">
+            <option value="Ensino médio completo">
+            <option value="Ensino técnico incompleto">
+            <option value="Ensino técnico completo">
+            <option value="Ensino superior incompleto">
+            <option value="Ensino superior completo">
+            <option value="Pós-graduação incompleta">
+            <option value="Pós-graduação completa">
+            <option value="Mestrado incompleto">
+            <option value="Mestrado completo">
+            <option value="Doutorado incompleto">
+            <option value="Doutorado completo">
+          </datalist>
+          <small class="field-tip">Dica: informe o nível mais alto já concluído ou em andamento.</small>
+        </div>
+        <div class="input-group">
+          <label class="required-label">Cursos (escolha até 3)</label>
+          <input type="hidden" id="cursos">
+          <details class="cursos-dropdown" id="dropdownCursos">
+            <summary id="cursosResumo">Selecione até 3 cursos</summary>
+            <div class="cursos-dropdown-panel">
+              <div id="cursosCheckboxes" class="cursos-checkbox-box">
+                <div class="curso-check-item"><input type="checkbox" id="curso_1" value="Informática básica"><label for="curso_1">Informática básica</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_2" value="Informática intermediária"><label for="curso_2">Informática intermediária</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_3" value="Informática avançada"><label for="curso_3">Informática avançada</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_4" value="Excel básico"><label for="curso_4">Excel básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_5" value="Excel intermediário"><label for="curso_5">Excel intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_6" value="Excel avançado"><label for="curso_6">Excel avançado</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_7" value="Atendimento ao público básico"><label for="curso_7">Atendimento ao público básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_8" value="Atendimento ao público intermediário"><label for="curso_8">Atendimento ao público intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_9" value="Recepção básica"><label for="curso_9">Recepção básica</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_10" value="Recepção intermediária"><label for="curso_10">Recepção intermediária</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_11" value="Auxiliar administrativo básico"><label for="curso_11">Auxiliar administrativo básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_12" value="Auxiliar administrativo intermediário"><label for="curso_12">Auxiliar administrativo intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_13" value="Operador de caixa básico"><label for="curso_13">Operador de caixa básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_14" value="Operador de caixa intermediário"><label for="curso_14">Operador de caixa intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_15" value="Secretariado básico"><label for="curso_15">Secretariado básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_16" value="Secretariado intermediário"><label for="curso_16">Secretariado intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_17" value="Marketing digital básico"><label for="curso_17">Marketing digital básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_18" value="Marketing digital intermediário"><label for="curso_18">Marketing digital intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_19" value="Marketing digital avançado"><label for="curso_19">Marketing digital avançado</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_20" value="Redes sociais básicas"><label for="curso_20">Redes sociais básicas</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_21" value="Redes sociais intermediárias"><label for="curso_21">Redes sociais intermediárias</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_22" value="Redes sociais avançadas"><label for="curso_22">Redes sociais avançadas</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_23" value="Vendas básicas"><label for="curso_23">Vendas básicas</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_24" value="Vendas intermediárias"><label for="curso_24">Vendas intermediárias</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_25" value="Vendas avançadas"><label for="curso_25">Vendas avançadas</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_26" value="Telemarketing básico"><label for="curso_26">Telemarketing básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_27" value="Telemarketing intermediário"><label for="curso_27">Telemarketing intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_28" value="Logística básica"><label for="curso_28">Logística básica</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_29" value="Logística intermediária"><label for="curso_29">Logística intermediária</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_30" value="Logística avançada"><label for="curso_30">Logística avançada</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_31" value="Almoxarifado básico"><label for="curso_31">Almoxarifado básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_32" value="Almoxarifado intermediário"><label for="curso_32">Almoxarifado intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_33" value="Primeiros socorros básico"><label for="curso_33">Primeiros socorros básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_34" value="Primeiros socorros avançado"><label for="curso_34">Primeiros socorros avançado</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_35" value="Cuidador básico"><label for="curso_35">Cuidador básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_36" value="Cuidador intermediário"><label for="curso_36">Cuidador intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_37" value="Manipulação de alimentos básica"><label for="curso_37">Manipulação de alimentos básica</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_38" value="Manipulação de alimentos avançada"><label for="curso_38">Manipulação de alimentos avançada</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_39" value="Assistente de RH básico"><label for="curso_39">Assistente de RH básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_40" value="Assistente de RH intermediário"><label for="curso_40">Assistente de RH intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_41" value="Noções de licitação básicas"><label for="curso_41">Noções de licitação básicas</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_42" value="Noções de licitação intermediárias"><label for="curso_42">Noções de licitação intermediárias</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_43" value="Photoshop básico"><label for="curso_43">Photoshop básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_44" value="Photoshop intermediário"><label for="curso_44">Photoshop intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_45" value="Photoshop avançado"><label for="curso_45">Photoshop avançado</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_46" value="Illustrator básico"><label for="curso_46">Illustrator básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_47" value="Illustrator intermediário"><label for="curso_47">Illustrator intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_48" value="Illustrator avançado"><label for="curso_48">Illustrator avançado</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_49" value="Corel Draw básico"><label for="curso_49">Corel Draw básico</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_50" value="Corel Draw intermediário"><label for="curso_50">Corel Draw intermediário</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_51" value="Corel Draw avançado"><label for="curso_51">Corel Draw avançado</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_52" value="Segurança básica"><label for="curso_52">Segurança básica</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_53" value="Segurança intermediária"><label for="curso_53">Segurança intermediária</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_54" value="Segurança avançada"><label for="curso_54">Segurança avançada</label></div>
+                <div class="curso-check-item"><input type="checkbox" id="curso_55" value="Não tenho"><label for="curso_55">Não tenho</label></div>
+            </div></div>
+          </details>
+          <small class="field-tip">Abra a lista suspensa e marque até 3 cursos. Ao tentar marcar o 4º, o sistema bloqueia automaticamente.</small>
+        </div>
+        <div class="input-group"><label class="required-label">Área de Atuação</label><input type="text" id="areaAtuacao" placeholder="Ex: administrativo, atendimento, vendas, serviços gerais"></div>
+        <div class="input-group"><label class="required-label">Objetivo Profissional</label><input type="text" id="objetivo" placeholder="Ex: atuar na área administrativa ou atendimento ao público"></div>
+        <div class="input-group">
+          <label class="required-label">Senha do cadastro</label>
+          <div class="senha-box">
+            <input type="password" id="senha" placeholder="Crie uma senha para proteger seus dados">
+            <button type="button" class="senha-toggle" onclick="alternarSenha('senha', this)">Mostrar</button>
+          </div>
+          <small class="field-tip">Use essa senha quando precisar alterar os dados futuramente.</small>
+        </div>
+        <div class="input-group">
+          <label class="required-label">Confirmar senha</label>
+          <div class="senha-box">
+            <input type="password" id="confirmarSenha" placeholder="Digite a senha novamente">
+            <button type="button" class="senha-toggle" onclick="alternarSenha('confirmarSenha', this)">Mostrar</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="required-label">1º Emprego</label>
+          <select id="primeiroEmprego" onchange="controlarPrimeiroEmprego()">
+            <option value="">Selecione</option>
+            <option value="Não">Não</option>
+            <option value="Sim">Sim</option>
+          </select>
+        </div>
+        <div class="input-group full-width">
+          <label class="required-label">Experiência Profissional</label>
+          <textarea id="experiencia" rows="3" placeholder="Ex: Empresa, função, período e principais atividades"></textarea>
+          <small class="field-tip">Se 1º Emprego = Sim, o sistema preencherá automaticamente “Sem experiência”.</small>
+        </div>
+
+        <div class="input-group full-width">
+          <label>Foto 3x4</label>
+          <div class="upload-card">
+            <div class="upload-title">Foto 3x4 do candidato</div>
+            
+            </div>
+            <div class="upload-actions">
+              <button type="button" class="upload-mini-btn" onclick="abrirArquivo('fileFoto')">Anexar arquivo</button>
+              <button type="button" class="upload-mini-btn secondary" onclick="abrirArquivo('fileFotoCamera')">Abrir câmera</button>
+              <button type="button" class="upload-mini-btn secondary" onclick="abrirLinkExistente('linkFotoAtual')">Abrir arquivo atual</button>
+            </div>
+            <div id="fotoThumbWrap" class="foto-thumb-wrap">
+              <img id="fotoThumb" src="" alt="Prévia da foto">
+            </div>
+            <div id="statusFoto" class="upload-status">Envie uma foto no formato retrato. Ao entrar no cadastro, a imagem fica disponível aqui.</div>
+            <input type="file" id="fileFoto" class="upload-hidden-input" accept="image/*" onchange="aoSelecionarUpload('foto')">
+            <input type="file" id="fileFotoCamera" class="upload-hidden-input" accept="image/*" capture="environment" onchange="aoSelecionarUpload('foto', true)">
+            <input type="hidden" id="linkFotoAtual">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Currículo</label>
+          <div class="upload-card">
+            <div class="upload-title">Currículo em PDF ou imagem</div>
+            <div class="upload-actions">
+              <button type="button" class="upload-mini-btn" onclick="abrirArquivo('fileCurr')">Anexar arquivo</button>
+              <button type="button" class="upload-mini-btn secondary" onclick="abrirLinkExistente('linkCurrAtual')">Abrir arquivo atual</button>
+            </div>
+            <div id="statusCurr" class="upload-status">Nenhum currículo selecionado.</div>
+            <input type="file" id="fileCurr" class="upload-hidden-input" accept="image/*,.pdf" onchange="aoSelecionarUpload('curr')">
+            <input type="file" id="fileCurrCamera" class="upload-hidden-input" accept="image/*,.pdf" capture="environment" onchange="aoSelecionarUpload('curr', true)">
+            <input type="hidden" id="linkCurrAtual">
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="required-label">Comprovante Escolaridade</label>
+          <div class="upload-card">
+            <div class="upload-title">Comprovante em PDF ou imagem</div>
+            <div class="upload-actions">
+              <button type="button" class="upload-mini-btn" onclick="abrirArquivo('fileComp')">Anexar arquivo</button>
+              <button type="button" class="upload-mini-btn secondary" onclick="abrirLinkExistente('linkCompAtual')">Abrir arquivo atual</button>
+            </div>
+            <div id="statusComp" class="upload-status">Nenhum comprovante selecionado.</div>
+            <input type="file" id="fileComp" class="upload-hidden-input" accept="image/*,.pdf" onchange="aoSelecionarUpload('comp')">
+            <input type="file" id="fileCompCamera" class="upload-hidden-input" accept="image/*,.pdf" capture="environment" onchange="aoSelecionarUpload('comp', true)">
+            <input type="hidden" id="linkCompAtual">
+          </div>
+        </div>
+      </div>
+
+      <div id="acoesCadastro" class="actions-grid" style="display:none;">
+        <button type="button" onclick="salvar()" id="btnSalvar" class="btn btn-primary">Salvar Cadastro</button>
+        <button type="button" onclick="voltar()" class="btn btn-outline">Voltar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="loading-box">
+    <div class="loading-spinner"></div>
+    <div id="loadingText" style="font-weight:700; color: var(--text);">Processando...</div>
+    <div style="margin-top:6px; color: var(--muted); font-size:13px;">Aguarde só um instante.</div>
+  </div>
+</div>
+
+<div id="modalOverlay" class="modal-overlay">
+  <div class="modal">
+    <h3 id="modalTitulo" style="margin-bottom: 10px;"></h3>
+    <p id="modalMsg" style="color: var(--muted); margin-bottom: 25px; line-height: 1.5;"></p>
+    <button onclick="fecharModal()" class="btn btn-primary">OK</button>
+  </div>
+</div>
+
+<script>
+  let modo = "novo";
+  let cadastroSemSenha = false;
+
+  function mascaraCPF(i) {
+    let v = i.value.replace(/\D/g, "");
+    if (v.length > 11) v = v.slice(0, 11);
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    i.value = v;
+  }
+
+  function mascaraCEP(i) {
+    let v = i.value.replace(/\D/g, "");
+    if (v.length > 8) v = v.slice(0, 8);
+    v = v.replace(/(\d{5})(\d)/, "$1-$2");
+    i.value = v;
+  }
+
+  function mascaraRG(i) {
+    let v = i.value.replace(/\D/g, "");
+
+    if (v.length > 10) v = v.slice(0, 10);
+
+    if (v.length === 10) {
+      v = v.replace(/(\d{2})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    }
+
+    i.value = v;
+  }
+
+  function cpfMatematicamenteValido(cpf) {
+    cpf = cpf.replace(/\D/g, '');
+    if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+    let soma = 0, resto;
+    for (let i = 1; i <= 9; i++) soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+    resto = (soma * 10) % 11;
+    if (resto == 10 || resto == 11) resto = 0;
+    if (resto != parseInt(cpf.substring(9, 10))) return false;
+    soma = 0;
+    for (let i = 1; i <= 10; i++) soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+    resto = (soma * 10) % 11;
+    if (resto == 10 || resto == 11) resto = 0;
+    return resto == parseInt(cpf.substring(10, 11));
+  }
+
+  function validarCampoCPF(el) {
+    if (el.value && !cpfMatematicamenteValido(el.value)) {
+      el.classList.add('input-error');
+      exibirModal("CPF Inválido", "O número informado não é um CPF válido.");
+    } else {
+      el.classList.remove('input-error');
+    }
+  }
+
+
+  function mostrarLoading(texto) {
+    const overlay = document.getElementById('loadingOverlay');
+    const label = document.getElementById('loadingText');
+    if (label) label.innerText = texto || 'Processando...';
+    if (overlay) overlay.style.display = 'flex';
+  }
+
+  function esconderLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+
+
+  function formatarTelefone(valor) {
+    valor = String(valor || '').replace(/\D/g, '');
+
+    if (valor.length === 11) {
+      return valor.replace(/^(\d{2})(\d)(\d{4})(\d{4})$/, '($1) $2 $3-$4');
+    }
+
+    if (valor.length === 10) {
+      return valor.replace(/^(\d{2})(\d{4})(\d{4})$/, '($1) $2-$3');
+    }
+
+    return valor;
+  }
+
+  function validarTelefone(valor) {
+    const v = String(valor || '').replace(/\D/g, '');
+    return v.length === 10 || v.length === 11;
+  }
+
+  function marcarCampoOk(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (String(el.value || '').trim()) {
+      el.classList.add('field-ok');
+      el.classList.remove('required-error');
+    } else {
+      el.classList.remove('field-ok');
+    }
+  }
+
+  function validarCamposEmTempoReal() {
+    const ids = ['nome','cpf','rg','dataNasc','telefone','email','cep','endereco','genero','escolaridade','areaAtuacao','objetivo','experiencia','senha','confirmarSenha'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const evento = el.tagName === 'SELECT' ? 'change' : 'input';
+      el.addEventListener(evento, function() {
+        if (id === 'cpf') {
+          if (this.value && cpfMatematicamenteValido(this.value)) {
+            this.classList.add('field-ok');
+            this.classList.remove('required-error', 'input-error');
+          } else {
+            this.classList.remove('field-ok');
+          }
+          return;
+        }
+        if (id === 'email') {
+          const valor = String(this.value || '').trim();
+          const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
+          if (valor && ok) {
+            this.classList.add('field-ok');
+            this.classList.remove('required-error');
+          } else {
+            this.classList.remove('field-ok');
+          }
+          return;
+        }
+        if (id === 'cep') {
+          const valor = String(this.value || '').replace(/\D/g, '');
+          if (valor.length === 8) {
+            this.classList.add('field-ok');
+            this.classList.remove('required-error');
+          } else {
+            this.classList.remove('field-ok');
+          }
+          return;
+        }
+        marcarCampoOk(id);
+      });
+    });
+  }
+
+  function exibirModal(t, m) {
+    document.getElementById('modalTitulo').innerText = t;
+    document.getElementById('modalMsg').innerText = m;
+    document.getElementById('modalOverlay').style.display = "flex";
+  }
+
+  function fecharModal() {
+    document.getElementById('modalOverlay').style.display = "none";
+  }
+
+  function voltar() {
+    document.getElementById('telaCadastro').classList.add('hidden');
+    document.getElementById('telaCadastro').style.display = 'none';
+    document.getElementById('acoesCadastro').style.display = 'none';
+    document.getElementById('telaBusca').classList.remove('hidden');
+    document.getElementById('telaBusca').style.display = 'block';
+  }
+
+  function abrirNovo() {
+    modo = "novo";
+    document.getElementById('formDados').reset();
+    document.getElementById('cpf').classList.remove('input-error');
+    cadastroSemSenha = false;
+    document.getElementById('tituloForm').innerText = "Novo Cadastro";
+    document.getElementById('btnSalvar').innerText = "Salvar Cadastro";
+    limparSelecaoCursos();
+    limparSelecaoDisponibilidade();
+    atualizarInfoIdade();
+    document.getElementById('statusFoto').textContent = 'Envie uma foto no formato retrato. Ao entrar no cadastro, a imagem fica disponível aqui.';
+    document.getElementById('statusCurr').textContent = 'Nenhum currículo selecionado.';
+    document.getElementById('statusComp').textContent = 'Nenhum comprovante selecionado.';
+    document.getElementById('linkFotoAtual').value = '';
+    document.getElementById('linkCurrAtual').value = '';
+    document.getElementById('linkCompAtual').value = '';
+    document.getElementById('fileFoto').value = '';
+    document.getElementById('fileFotoCamera').value = '';
+    document.getElementById('fileCurr').value = '';
+    document.getElementById('fileCurrCamera').value = '';
+    document.getElementById('fileComp').value = '';
+    document.getElementById('fileCompCamera').value = '';
+    
+    document.getElementById('telaBusca').classList.add('hidden');
+    document.getElementById('telaBusca').style.display = 'none';
+    document.getElementById('telaCadastro').classList.remove('hidden');
+    document.getElementById('telaCadastro').style.display = 'block';
+    document.getElementById('acoesCadastro').style.display = 'grid';
+    setTimeout(() => {
+      const nome = document.getElementById('nome');
+      if (nome) nome.focus();
+    }, 60);
+  }
+
+
+  function calcularIdadeFrontend(dataTexto) {
+    if (!dataTexto) return '';
+
+    const partes = dataTexto.split('-');
+    if (partes.length !== 3) return '';
+
+    const nascimento = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10));
+    if (isNaN(nascimento.getTime())) return '';
+
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const mesAtual = hoje.getMonth();
+    const diaAtual = hoje.getDate();
+    const mesNasc = nascimento.getMonth();
+    const diaNasc = nascimento.getDate();
+
+    if (mesAtual < mesNasc || (mesAtual === mesNasc && diaAtual < diaNasc)) {
+      idade--;
+    }
+
+    return idade >= 0 ? idade : '';
+  }
+
+
+
+  function controlarPrimeiroEmprego() {
+    const select = document.getElementById('primeiroEmprego');
+    const campo = document.getElementById('experiencia');
+    if (!select || !campo) return;
+
+    if (select.value === 'Sim') {
+      campo.value = 'Sem experiência';
+      campo.disabled = true;
+      campo.classList.remove('required-error');
+      campo.classList.add('field-ok');
+    } else {
+      if ((campo.value || '').trim().toLowerCase() === 'sem experiência' || (campo.value || '').trim().toLowerCase() === 'sem experiencia') {
+        campo.value = '';
+      }
+      campo.disabled = false;
+      campo.classList.remove('field-ok');
+    }
+  }
+
+  function controlarCampoCNH() {
+    const possuiCnh = document.getElementById('possuiCnh');
+    const categoriaCnh = document.getElementById('categoriaCnh');
+    if (!possuiCnh || !categoriaCnh) return;
+
+    if (possuiCnh.value === 'Sim') {
+      categoriaCnh.disabled = false;
+    } else {
+      categoriaCnh.value = '';
+      categoriaCnh.disabled = true;
+      categoriaCnh.classList.remove('field-ok', 'required-error');
+    }
+  }
+
+  function atualizarInfoIdade() {
+    const dataNasc = document.getElementById('dataNasc').value;
+    const idadeInput = document.getElementById('idade');
+    const idadeInfo = document.getElementById('idadeInfo');
+
+    const idade = calcularIdadeFrontend(dataNasc);
+    idadeInput.value = idade;
+
+    if (!dataNasc || idade === '') {
+      idadeInfo.textContent = 'A idade será calculada automaticamente pela data de nascimento.';
+      return;
+    }
+
+    const partes = dataNasc.split('-').map(Number);
+    const hoje = new Date();
+    const aniversarianteHoje = hoje.getMonth() === (partes[1] - 1) && hoje.getDate() === partes[2];
+
+    if (aniversarianteHoje) {
+      idadeInfo.textContent = 'Hoje é aniversário desta pessoa. Idade atualizada automaticamente.';
+    } else {
+      idadeInfo.textContent = 'Idade calculada automaticamente: ' + idade + ' anos.';
+    }
+  }
+
+  async function buscarCepAutomatico() {
+    const inputCep = document.getElementById('cep');
+    const inputEndereco = document.getElementById('endereco');
+    const cepLimpo = inputCep.value.replace(/\D/g, '');
+
+    if (!cepLimpo) return;
+    if (cepLimpo.length !== 8) {
+      exibirModal("CEP inválido", "Digite um CEP com 8 números.");
+      return;
+    }
+
+    const placeholderOriginal = inputEndereco.placeholder;
+    inputEndereco.placeholder = "Buscando endereço...";
+
+    try {
+      const resposta = await fetch('https://viacep.com.br/ws/' + cepLimpo + '/json/');
+      const dados = await resposta.json();
+
+      if (dados.erro) {
+        exibirModal("CEP não encontrado", "Não foi possível localizar esse CEP. Você pode preencher o endereço manualmente.");
+        return;
+      }
+
+      const partes = [];
+      if (dados.logradouro) partes.push(dados.logradouro);
+      if (dados.bairro) partes.push(dados.bairro);
+
+      let cidadeUf = "";
+      if (dados.localidade) cidadeUf += dados.localidade;
+      if (dados.uf) cidadeUf += (cidadeUf ? "/" : "") + dados.uf;
+      if (cidadeUf) partes.push(cidadeUf);
+
+      const enderecoMontado = partes.join(" - ");
+      if (enderecoMontado) {
+        inputEndereco.value = enderecoMontado;
+      }
+    } catch (e) {
+      exibirModal("Falha ao buscar CEP", "Não foi possível consultar o CEP agora. Você pode preencher o endereço manualmente.");
+    } finally {
+      inputEndereco.placeholder = placeholderOriginal || "Endereço Completo";
+    }
+  }
+
+  
+
+  
+
+  
+
+  function atualizarResumoCursos() {
+    const valor = document.getElementById('cursos').value || '';
+    const lista = valor.split(',').map(item => item.trim()).filter(Boolean);
+    const resumo = document.getElementById('cursosResumo');
+
+    if (lista.length === 0) {
+      resumo.textContent = 'Selecione até 3 cursos';
+    } else if (lista.length === 1) {
+      resumo.textContent = lista[0];
+    } else {
+      resumo.textContent = lista.length + ' cursos selecionados';
+    }
+  }
+
+  function limparSelecaoCursos() {
+    document.getElementById('cursos').value = '';
+    document.querySelectorAll('#cursosCheckboxes input[type="checkbox"]').forEach(item => item.checked = false);
+    atualizarResumoCursos();
+  }
+
+  function definirCursosSelecionados(valorCursos) {
+    const lista = String(valorCursos || '')
+      .split(',')
+      .map(item => item.trim())
+      .filter(Boolean);
+
+    document.getElementById('cursos').value = lista.join(', ');
+    document.querySelectorAll('#cursosCheckboxes input[type="checkbox"]').forEach(item => {
+      item.checked = lista.includes(item.value);
+    });
+    atualizarResumoCursos();
+  }
+
+  function obterCursosSelecionados() {
+    const selecionados = Array.from(document.querySelectorAll('#cursosCheckboxes input[type="checkbox"]:checked'))
+      .map(item => item.value);
+    return selecionados.join(', ');
+  }
+
+  function ativarCheckboxesCursos() {
+  document.querySelectorAll('#cursosCheckboxes input[type="checkbox"]').forEach(item => {
+    item.addEventListener('change', function() {
+      const checkboxes = Array.from(document.querySelectorAll('#cursosCheckboxes input[type="checkbox"]'));
+      const checkboxNaoTenho = checkboxes.find(cb => cb.value === 'Não tenho');
+
+      if (this.value === 'Não tenho' && this.checked) {
+        checkboxes.forEach(cb => {
+          if (cb.value !== 'Não tenho') cb.checked = false;
+        });
+      }
+
+      if (this.value !== 'Não tenho' && this.checked && checkboxNaoTenho && checkboxNaoTenho.checked) {
+        checkboxNaoTenho.checked = false;
+      }
+
+      const marcados = document.querySelectorAll('#cursosCheckboxes input[type="checkbox"]:checked');
+      if (marcados.length > 3) {
+        this.checked = false;
+        exibirModal("Limite atingido", "Você pode selecionar no máximo 3 cursos.");
+        return;
+      }
+
+      document.getElementById('cursos').value = obterCursosSelecionados();
+      atualizarResumoCursos();
+    });
+  });
+}
+
+  function atualizarResumoDisponibilidade() {
+    const valor = document.getElementById('disponibilidadeHorario').value || '';
+    const lista = valor.split(',').map(item => item.trim()).filter(Boolean);
+    const resumo = document.getElementById('disponibilidadeResumo');
+
+    if (!resumo) return;
+
+    if (lista.length === 0) {
+      resumo.textContent = 'Selecione os horários disponíveis';
+    } else if (lista.length === 1) {
+      resumo.textContent = lista[0];
+    } else {
+      resumo.textContent = lista.length + ' horários selecionados';
+    }
+  }
+
+  function limparSelecaoDisponibilidade() {
+    const hidden = document.getElementById('disponibilidadeHorario');
+    if (hidden) hidden.value = '';
+    document.querySelectorAll('#disponibilidadeCheckboxes input[type="checkbox"]').forEach(item => item.checked = false);
+    atualizarResumoDisponibilidade();
+  }
+
+  function definirDisponibilidadeSelecionada(valorDisponibilidade) {
+    const lista = String(valorDisponibilidade || '')
+      .split(',')
+      .map(item => item.trim())
+      .filter(Boolean);
+
+    const hidden = document.getElementById('disponibilidadeHorario');
+    if (hidden) hidden.value = lista.join(', ');
+
+    document.querySelectorAll('#disponibilidadeCheckboxes input[type="checkbox"]').forEach(item => {
+      item.checked = lista.includes(item.value);
+    });
+    atualizarResumoDisponibilidade();
+  }
+
+  function obterDisponibilidadeSelecionada() {
+    const selecionados = Array.from(document.querySelectorAll('#disponibilidadeCheckboxes input[type="checkbox"]:checked'))
+      .map(item => item.value);
+    return selecionados.join(', ');
+  }
+
+  function ativarCheckboxesDisponibilidade() {
+    document.querySelectorAll('#disponibilidadeCheckboxes input[type="checkbox"]').forEach(item => {
+      item.addEventListener('change', function() {
+        const hidden = document.getElementById('disponibilidadeHorario');
+        if (hidden) hidden.value = obterDisponibilidadeSelecionada();
+        atualizarResumoDisponibilidade();
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    ativarCheckboxesCursos();
+    atualizarResumoCursos();
+    ativarCheckboxesDisponibilidade();
+    atualizarResumoDisponibilidade();
+    atualizarInfoIdade();
+  });
+
+
+  function abrirArquivo(id) {
+    const input = document.getElementById(id);
+    if (input) input.click();
+  }
+
+  function abrirLinkExistente(idCampo) {
+    const link = document.getElementById(idCampo).value;
+    if (!link) {
+      exibirModal("Arquivo não disponível", "Ainda não existe arquivo salvo para este campo.");
+      return;
+    }
+    window.open(link, '_blank');
+  }
+
+  function converterLinkDriveParaPreview(link) {
+    if (!link) return '';
+
+    const texto = String(link).trim();
+
+    const matchIdParam = texto.match(/[?&]id=([^&]+)/);
+    if (matchIdParam && matchIdParam[1]) {
+      return 'https://drive.google.com/uc?export=view&id=' + matchIdParam[1];
+    }
+
+    const matchFile = texto.match(/\/file\/d\/([^\/]+)/);
+    if (matchFile && matchFile[1]) {
+      return 'https://drive.google.com/uc?export=view&id=' + matchFile[1];
+    }
+
+    if (/uc\?export=view&id=/.test(texto)) {
+      return texto;
+    }
+
+    return texto;
+  }
+
+  function definirPreviewFoto(link) {
+    const img = document.getElementById('previewFoto3x4');
+    const placeholder = document.getElementById('fotoPlaceholder');
+
+    if (!img || !placeholder) return;
+
+    if (link) {
+      img.src = link;
+      img.style.display = 'block';
+      placeholder.style.display = 'none';
+    } else {
+      img.removeAttribute('src');
+      img.style.display = 'none';
+      placeholder.style.display = 'block';
+    }
+  }
+
+  function atualizarPreviewFotoAtual() {
+    const linkAtual = document.getElementById('linkFotoAtual').value || '';
+    definirPreviewFoto(linkAtual ? converterLinkDriveParaPreview(linkAtual) : '');
+  }
+
+  function obterArquivoSelecionadoFoto() {
+    const inputNormal = document.getElementById('fileFoto');
+    const inputCamera = document.getElementById('fileFotoCamera');
+
+    if (inputCamera && inputCamera.files && inputCamera.files[0]) return inputCamera.files[0];
+    if (inputNormal && inputNormal.files && inputNormal.files[0]) return inputNormal.files[0];
+    return null;
+  }
+
+  function limparOutraEntradaFoto(origem) {
+    if (origem === 'fileFoto') {
+      const cam = document.getElementById('fileFotoCamera');
+      if (cam) cam.value = '';
+    } else if (origem === 'fileFotoCamera') {
+      const arq = document.getElementById('fileFoto');
+      if (arq) arq.value = '';
+    }
+  }
+
+  function aoSelecionarUpload(tipo, camera = false) {
+    let inputId = '';
+    let statusId = '';
+
+    if (tipo === 'foto') {
+      inputId = camera ? 'fileFotoCamera' : 'fileFoto';
+      statusId = 'statusFoto';
+    } else if (tipo === 'curr') {
+      inputId = camera ? 'fileCurrCamera' : 'fileCurr';
+      statusId = 'statusCurr';
+    } else if (tipo === 'comp') {
+      inputId = camera ? 'fileCompCamera' : 'fileComp';
+      statusId = 'statusComp';
+    }
+
+    const input = document.getElementById(inputId);
+    const file = input && input.files ? input.files[0] : null;
+
+    if (!file) return;
+
+    document.getElementById(statusId).textContent = 'Arquivo selecionado: ' + file.name;
+
+    if (tipo === 'foto') {
+      limparOutraEntradaFoto(inputId);
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+
+  function converterLinkDriveParaPreview(link) {
+    if (!link) return '';
+
+    const texto = String(link).trim();
+
+    const matchIdParam = texto.match(/[?&]id=([^&]+)/);
+    if (matchIdParam && matchIdParam[1]) {
+      return 'https://drive.google.com/uc?export=view&id=' + matchIdParam[1];
+    }
+
+    const matchFile = texto.match(/\/file\/d\/([^\/]+)/);
+    if (matchFile && matchFile[1]) {
+      return 'https://drive.google.com/uc?export=view&id=' + matchFile[1];
+    }
+
+    if (/uc\?export=view&id=/.test(texto)) {
+      return texto;
+    }
+
+    return texto;
+  }
+
+  function atualizarMiniPreviewFoto(link) {
+    const wrap = document.getElementById('fotoThumbWrap');
+    const img = document.getElementById('fotoThumb');
+
+    if (link) {
+      img.src = link;
+      wrap.style.display = 'flex';
+    } else {
+      img.removeAttribute('src');
+      wrap.style.display = 'none';
+    }
+  }
+
+
+  function alternarSenha(idCampo, botao) {
+    const campo = document.getElementById(idCampo);
+    if (!campo) return;
+
+    if (campo.type === 'password') {
+      campo.type = 'text';
+      botao.textContent = 'Ocultar';
+    } else {
+      campo.type = 'password';
+      botao.textContent = 'Mostrar';
+    }
+  }
+
+  
+let cpfTempSenha = "";
+let dadosTempCadastro = null;
+
+
+function mostrarErroSenhaModal(msg) {
+  const box = document.getElementById('erroSenhaModal');
+  if (!box) return;
+  box.textContent = msg || 'Senha incorreta.';
+  box.classList.remove('hidden');
+}
+
+function limparErroSenhaModal() {
+  const box = document.getElementById('erroSenhaModal');
+  if (!box) return;
+  box.textContent = '';
+  box.classList.add('hidden');
+}
+
+function abrirModalSenha(cpf, dadosCadastro){
+  cpfTempSenha = cpf;
+  dadosTempCadastro = dadosCadastro || null;
+  const modal = document.getElementById('modalSenha');
+  const input = document.getElementById('inputSenhaModal');
+  if (input) {
+    input.value = '';
+    input.type = 'password';
+  }
+  limparErroSenhaModal();
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+  if (input) input.focus();
+}
+
+function fecharModalSenha(){
+  const modal = document.getElementById('modalSenha');
+  modal.classList.add('hidden');
+  modal.style.display = 'none';
+  const input = document.getElementById('inputSenhaModal');
+  if (input) input.value = '';
+  limparErroSenhaModal();
+  cpfTempSenha = '';
+  dadosTempCadastro = null;
+}
+
+function abrirCadastroParaEdicao(dados, semSenha) {
+  if (!dados) {
+    exibirModal("Atenção", "Não foi possível carregar os dados do cadastro.");
+    return;
+  }
+
+  cadastroSemSenha = !!semSenha;
+  preencher(dados);
+  modo = "edicao";
+  document.getElementById('tituloForm').innerText = "Atualizar Cadastro";
+  document.getElementById('btnSalvar').innerText = "Atualizar Cadastro";
+  document.getElementById('telaBusca').classList.add('hidden');
+  document.getElementById('telaBusca').style.display = 'none';
+  document.getElementById('telaCadastro').classList.remove('hidden');
+  document.getElementById('telaCadastro').style.display = 'block';
+  document.getElementById('acoesCadastro').style.display = 'grid';
+
+  if (semSenha) {
+    exibirModal("Atenção", "Este cadastro ainda não possui senha. Defina uma senha ao salvar.");
+  }
+}
+
+function confirmarSenhaModal(){
+  const input = document.getElementById('inputSenhaModal');
+  const senha = input ? input.value : '';
+
+  if (!senha) {
+    mostrarErroSenhaModal("Digite a senha do cadastro.");
+    return;
+  }
+
+  mostrarLoading('Validando senha...');
+  google.script.run
+    .withSuccessHandler(validacao => {
+      if (!validacao.ok) {
+        esconderLoading();
+        mostrarErroSenhaModal(validacao.mensagem || "Senha incorreta.");
+        return;
+      }
+
+      const dadosCadastro = dadosTempCadastro;
+      const semSenha = !!validacao.semSenha;
+      esconderLoading();
+      fecharModalSenha();
+      abrirCadastroParaEdicao(dadosCadastro, semSenha);
+    })
+    .withFailureHandler(err => {
+      esconderLoading();
+      mostrarErroSenhaModal(err && err.message ? err.message : "Erro ao validar senha.");
+    })
+    .validarSenhaEdicao(cpfTempSenha, senha);
+}
+
+function buscarCpf() {
+    const inputBusca = document.getElementById('cpfBusca');
+    if(!cpfMatematicamenteValido(inputBusca.value)) return exibirModal("Atenção", "Digite um CPF válido.");
+
+    const btn = document.getElementById('btnBusca');
+    btn.innerText = "Buscando...";
+    btn.disabled = true;
+    mostrarLoading('Buscando CPF...');
+
+    google.script.run
+      .withSuccessHandler(res => {
+        btn.innerText = "Pesquisar CPF";
+        btn.disabled = false;
+        esconderLoading();
+        if(res.encontrado) {
+          abrirModalSenha(inputBusca.value.replace(/\D/g, ""), res.dados);
+          btn.innerText = "Pesquisar CPF";
+          btn.disabled = false;
+        } else {
+          abrirNovo();
+          document.getElementById('cpf').value = inputBusca.value;
+        }
+      })
+      .withFailureHandler(err => {
+        btn.innerText = "Pesquisar CPF";
+        btn.disabled = false;
+        esconderLoading();
+        exibirModal("Atenção", err && err.message ? err.message : "Erro ao pesquisar CPF.");
+      })
+      .buscarCpf(inputBusca.value.replace(/\D/g, ""));
+  }
+
+  function preencher(d) {
+    document.getElementById('nome').value = d.nome || "";
+    document.getElementById('cpf').value = d.cpf || "";
+    document.getElementById('rg').value = d.rg || "";
+    document.getElementById('dataNasc').value = d.dataNasc || "";
+    document.getElementById('telefone').value = d.telefone || "";
+    document.getElementById('email').value = d.email || "";
+    document.getElementById('cep').value = d.cep || "";
+    document.getElementById('endereco').value = d.endereco || "";
+    document.getElementById('genero').value = d.genero || "";
+    document.getElementById('idade').value = d.idade || "";
+    document.getElementById('estadoCivil').value = d.estadoCivil || "";
+    document.getElementById('possuiFilhos').value = d.possuiFilhos || "";
+    document.getElementById('pcd').value = d.pcd || "";
+    document.getElementById('possuiCnh').value = d.possuiCnh || "";
+    document.getElementById('categoriaCnh').value = d.categoriaCnh || "";
+    document.getElementById('idioma').value = d.idioma || "";
+    controlarCampoCNH();
+    atualizarInfoIdade();
+    document.getElementById('escolaridade').value = d.escolaridade || "";
+    definirCursosSelecionados(d.cursos || "");
+    definirDisponibilidadeSelecionada(d.disponibilidadeHorario || "");
+    document.getElementById('experiencia').value = d.experiencia || "";
+    const selectPrimeiroEmprego = document.getElementById('primeiroEmprego');
+    if (selectPrimeiroEmprego) {
+      selectPrimeiroEmprego.value = d.primeiroEmprego || "";
+      controlarPrimeiroEmprego();
+      if (selectPrimeiroEmprego.value !== 'Sim') {
+        document.getElementById('experiencia').value = d.experiencia || "";
+      }
+    }
+    document.getElementById('areaAtuacao').value = d.areaAtuacao || "";
+    document.getElementById('objetivo').value = d.objetivo || "";
+    document.getElementById('linkFotoAtual').value = d.linkFoto || "";
+    document.getElementById('linkCurrAtual').value = d.linkCurriculo || "";
+    document.getElementById('linkCompAtual').value = d.linkComprovante || "";
+    document.getElementById('statusFoto').textContent = d.linkFoto ? 'Foto atual disponível. Você pode anexar outra ou abrir o arquivo atual.' : 'Envie uma foto no formato retrato. Ao entrar no cadastro, a imagem fica disponível aqui.';
+    document.getElementById('statusCurr').textContent = d.linkCurriculo ? 'Currículo atual disponível. Você pode anexar outro ou abrir o arquivo atual.' : 'Nenhum currículo selecionado.';
+    document.getElementById('statusComp').textContent = d.linkComprovante ? 'Comprovante atual disponível. Você pode anexar outro ou abrir o arquivo atual.' : 'Nenhum comprovante selecionado.';
+    
+    document.getElementById('senha').value = "";
+    document.getElementById('confirmarSenha').value = "";
+  }
+
+  async function lerArquivo(id) {
+    const candidatos = [id];
+
+    if (id === 'fileFoto') candidatos.push('fileFotoCamera');
+    if (id === 'fileCurr') candidatos.push('fileCurrCamera');
+    if (id === 'fileComp') candidatos.push('fileCompCamera');
+
+    let file = null;
+    for (const candidato of candidatos) {
+      const el = document.getElementById(candidato);
+      if (el && el.files && el.files[0]) {
+        file = el.files[0];
+        break;
+      }
+    }
+
+    if (!file) return null;
+
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => resolve({
+        base64: e.target.result.split(',')[1],
+        name: file.name,
+        mimeType: file.type
+      });
+      reader.readAsDataURL(file);
+    });
+  }
+
+
+  function limparErrosObrigatorios() {
+    document.querySelectorAll('.required-error').forEach(el => el.classList.remove('required-error'));
+  }
+
+  function marcarErroObrigatorio(el) {
+    if (el) el.classList.add('required-error');
+  }
+
+  function validarFormularioObrigatorio() {
+    limparErrosObrigatorios();
+
+    const camposObrigatorios = [
+      { id: 'nome', nome: 'Nome completo' },
+      { id: 'cpf', nome: 'CPF' },
+      { id: 'dataNasc', nome: 'Data de nascimento' },
+      { id: 'telefone', nome: 'Telefone / WhatsApp' },
+      { id: 'email', nome: 'E-mail' },
+      { id: 'cep', nome: 'CEP' },
+      { id: 'endereco', nome: 'Endereço completo' },
+      { id: 'genero', nome: 'Gênero' },
+      { id: 'estadoCivil', nome: 'Estado Civil' },
+      { id: 'possuiFilhos', nome: 'Possui Filhos' },
+      { id: 'pcd', nome: 'É PCD?' },
+      { id: 'possuiCnh', nome: 'Possui CNH' },
+      { id: 'primeiroEmprego', nome: '1º Emprego' },
+      { id: 'escolaridade', nome: 'Escolaridade' },
+      { id: 'objetivo', nome: 'Objetivo profissional' },
+      { id: 'experiencia', nome: 'Experiência profissional' }
+    ];
+
+    for (const campo of camposObrigatorios) {
+      const el = document.getElementById(campo.id);
+      const valor = el ? String(el.value || '').trim() : '';
+
+      if (campo.id === 'experiencia') {
+        const primeiroEmprego = document.getElementById('primeiroEmprego');
+        if (primeiroEmprego && primeiroEmprego.value === 'Sim') {
+          continue;
+        }
+      }
+
+      if (!valor) {
+        marcarErroObrigatorio(el);
+        exibirModal("Atenção", "Preencha o campo obrigatório: " + campo.nome + ".");
+        if (el) el.focus();
+        return false;
+      }
+    }
+
+    const cursos = obterCursosSelecionados().trim();
+    if (!cursos) {
+      marcarErroObrigatorio(document.getElementById('dropdownCursos'));
+      exibirModal("Atenção", "Selecione pelo menos um curso.");
+      return false;
+    }
+
+    const disponibilidade = obterDisponibilidadeSelecionada().trim();
+    if (!disponibilidade) {
+      marcarErroObrigatorio(document.getElementById('dropdownDisponibilidade'));
+      exibirModal("Atenção", "Selecione a disponibilidade de horário.");
+      return false;
+    }
+
+    const comprovanteArquivo = document.getElementById('fileComp');
+    const linkCompAtual = document.getElementById('linkCompAtual');
+    const temComprovanteNovo = !!(comprovanteArquivo && comprovanteArquivo.files && comprovanteArquivo.files[0]);
+    const temComprovanteAtual = !!(linkCompAtual && String(linkCompAtual.value || '').trim());
+
+    if (!temComprovanteNovo && !temComprovanteAtual) {
+      const uploadCard = document.getElementById('fileComp') ? document.getElementById('fileComp').closest('.upload-card') : null;
+      marcarErroObrigatorio(uploadCard);
+      exibirModal("Atenção", "Anexe o comprovante de escolaridade.");
+      return false;
+    }
+
+    if (modo === 'novo') {
+      const senhaEl = document.getElementById('senha');
+      const confirmarEl = document.getElementById('confirmarSenha');
+      const senha = senhaEl.value.trim();
+      const confirmar = confirmarEl.value.trim();
+
+      if (!senha) {
+        marcarErroObrigatorio(senhaEl);
+        exibirModal("Atenção", "Informe a senha do cadastro.");
+        return false;
+      }
+      if (senha.length < 4) {
+        marcarErroObrigatorio(senhaEl);
+        exibirModal("Atenção", "A senha deve ter pelo menos 4 caracteres.");
+        return false;
+      }
+      if (senha !== confirmar) {
+        marcarErroObrigatorio(senhaEl);
+        marcarErroObrigatorio(confirmarEl);
+        exibirModal("Atenção", "A confirmação da senha não confere.");
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  async function salvar() {
+    if(!cpfMatematicamenteValido(document.getElementById('cpf').value)) return exibirModal("Erro", "CPF inválido.");
+    if(!validarFormularioObrigatorio()) return;
+    const btn = document.getElementById('btnSalvar');
+    const textoOriginal = modo === "edicao" ? "Atualizar Cadastro" : "Salvar Cadastro";
+    btn.disabled = true;
+    btn.innerText = "Salvando...";
+    mostrarLoading(modo === "edicao" ? "Atualizando cadastro..." : "Salvando cadastro...");
+
+    const dados = {
+      modo: modo,
+      nome: document.getElementById('nome').value,
+      cpf: document.getElementById('cpf').value,
+      rg: document.getElementById('rg').value,
+      dataNasc: document.getElementById('dataNasc').value,
+      telefone: document.getElementById('telefone').value,
+      email: document.getElementById('email').value,
+      cep: document.getElementById('cep').value,
+      endereco: document.getElementById('endereco').value,
+      genero: document.getElementById('genero').value,
+      estadoCivil: document.getElementById('estadoCivil').value,
+      possuiFilhos: document.getElementById('possuiFilhos').value,
+      pcd: document.getElementById('pcd').value,
+      possuiCnh: document.getElementById('possuiCnh').value,
+      categoriaCnh: document.getElementById('categoriaCnh').value,
+      idioma: document.getElementById('idioma').value,
+      escolaridade: document.getElementById('escolaridade').value,
+      cursos: obterCursosSelecionados(),
+      disponibilidadeHorario: obterDisponibilidadeSelecionada(),
+      primeiroEmprego: document.getElementById('primeiroEmprego').value,
+      experiencia: document.getElementById('experiencia').value,
+      areaAtuacao: document.getElementById('areaAtuacao').value,
+      objetivo: document.getElementById('objetivo').value,
+      senha: document.getElementById('senha').value,
+      confirmarSenha: document.getElementById('confirmarSenha').value,
+      foto: await lerArquivo('fileFoto'),
+      curr: await lerArquivo('fileCurr'),
+      comp: await lerArquivo('fileComp')
+    };
+
+    google.script.run
+      .withSuccessHandler(res => {
+        btn.disabled = false;
+        btn.innerText = textoOriginal;
+        esconderLoading();
+        exibirModal("Sucesso", res.mensagem || (modo === 'edicao' ? "Currículo atualizado com sucesso." : "Cadastro realizado com sucesso."));
+        if(res.status === "ok") voltar();
+      })
+      .withFailureHandler(err => {
+        btn.disabled = false;
+        btn.innerText = textoOriginal;
+        esconderLoading();
+        exibirModal("Atenção", err && err.message ? err.message : "Erro ao salvar cadastro.");
+      })
+      .salvarCadastro(dados);
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const inputSenha = document.getElementById('inputSenhaModal');
+    if (inputSenha) {
+      inputSenha.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          confirmarSenhaModal();
+        }
+      });
+      inputSenha.addEventListener('input', function() {
+        limparErroSenhaModal();
+      });
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+      el.addEventListener('input', function() {
+        this.classList.remove('required-error');
+      });
+      el.addEventListener('change', function() {
+        this.classList.remove('required-error');
+      });
+    });
+  });
+
+  window.addEventListener('load', function() {
+    validarCamposEmTempoReal();
+
+    const telefone = document.getElementById('telefone');
+    if (telefone) {
+      telefone.addEventListener('input', function () {
+        const numeros = this.value.replace(/\D/g, '').slice(0, 11);
+        this.value = numeros;
+        this.classList.remove('field-ok', 'required-error');
+
+        if (numeros.length === 11 && validarDDD(numeros) && !telefoneEhRepetido(numeros)) {
+          this.value = formatarTelefone(numeros);
+          this.classList.add('field-ok');
+        }
+      });
+
+      telefone.addEventListener('blur', function () {
+        const numeros = this.value.replace(/\D/g, '');
+
+        if (!validarTelefone(numeros) || !validarDDD(numeros) || telefoneEhRepetido(numeros)) {
+          this.classList.add('required-error');
+          this.classList.remove('field-ok');
+          return;
+        }
+
+        this.value = formatarTelefone(numeros);
+        this.classList.remove('required-error');
+        this.classList.add('field-ok');
+      });
+    }
+    const telaBusca = document.getElementById('telaBusca');
+    const telaCadastro = document.getElementById('telaCadastro');
+
+    if (telaBusca) {
+      telaBusca.classList.remove('hidden');
+      telaBusca.style.display = 'block';
+    }
+    const cpfBusca = document.getElementById('cpfBusca');
+    if (cpfBusca) {
+      setTimeout(() => cpfBusca.focus(), 80);
+    }
+    controlarCampoCNH();
+    controlarPrimeiroEmprego();
+
+    if (telaCadastro) {
+      telaCadastro.classList.add('hidden');
+      telaCadastro.style.display = 'none';
+    }
+    const acoesCadastro = document.getElementById('acoesCadastro');
+    if (acoesCadastro) {
+      acoesCadastro.style.display = 'none';
+    }
+  });
+</script>
+
+<!-- MODAL SENHA -->
+<div id="modalSenha" class="modal-overlay hidden" style="display:none;">
+  <div class="modal-box">
+    <h3>Digite sua senha</h3>
+    <input type="password" id="inputSenhaModal" placeholder="Digite a senha">
+    <div id="erroSenhaModal" class="erro-senha-modal hidden"></div>
+    <div class="modal-actions">
+      <button onclick="confirmarSenhaModal()">Confirmar</button>
+      <button class="secondary" onclick="fecharModalSenha()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
